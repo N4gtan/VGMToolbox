@@ -6,15 +6,14 @@ namespace VGMToolbox.util
     {
         public static string Evaluate(string expression)
         {
-            object results = null;
             string outputValue;
 
             try
             {
-                results = JSUtil.Util.Eval(expression);
+                object results = JSUtil.Util.Eval(expression);
                 outputValue = Convert.ToString((long)Convert.ToUInt64(results), 10);
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
                 outputValue = null;
             }
@@ -24,18 +23,14 @@ namespace VGMToolbox.util
 
         public static long RoundUpToByteAlignment(long valueToRound, long byteAlignment)
         {
-            long roundedValue = -1;
-
-            roundedValue = (valueToRound + byteAlignment - 1) / byteAlignment * byteAlignment;
+            long roundedValue = (valueToRound + byteAlignment - 1) / byteAlignment * byteAlignment;
 
             return roundedValue;
         }
 
         public static ulong RoundUpToByteAlignment(ulong valueToRound, ulong byteAlignment)
         {
-            ulong roundedValue;
-
-            roundedValue = (valueToRound + byteAlignment - 1) / byteAlignment * byteAlignment;
+            ulong roundedValue = (valueToRound + byteAlignment - 1) / byteAlignment * byteAlignment;
 
             return roundedValue;
         }

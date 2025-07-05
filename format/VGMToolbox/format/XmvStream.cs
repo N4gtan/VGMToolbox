@@ -38,7 +38,7 @@ namespace VGMToolbox.format
 
             public XmvAudioDataHeader[] AudioHeaders { set; get; }
         }
-
+        /*
         public struct XmvPacketHeader
         {
             byte[] NextPacketSize { set; get; }
@@ -65,7 +65,7 @@ namespace VGMToolbox.format
         {
             byte[] AudioDataSize { set; get; }
         }
-
+        */
 
         
         public string FilePath { get; set; }

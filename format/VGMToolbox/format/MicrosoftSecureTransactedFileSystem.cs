@@ -266,7 +266,7 @@ namespace VGMToolbox.format
         // from Free60 wiki
         public static int ComputeDataBlockNumber(int xBlock, uint headerSize, byte blockSeparation)
         {
-            int xBlockShift;
+            /*int xBlockShift;
 
             if (((headerSize + 0xFFF) & 0xF000) == 0xB000)
             {
@@ -282,7 +282,7 @@ namespace VGMToolbox.format
                 {
                     xBlockShift = 1;
                 }
-            }
+            }*/
 
             int xBase = ((xBlock + 0xAA) / 0xAA);
 

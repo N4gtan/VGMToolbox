@@ -38,7 +38,7 @@ namespace VGMToolbox.format
 
         private const int DEVICE_FLAG_OFFSET = 0x0F;
         private const int DEVICE_FLAG_LENGTH = 0x01;
-
+        /*
         private byte[] asciiSignature;
         private byte[] loadAddress;
         private byte[] loadSize;
@@ -62,7 +62,7 @@ namespace VGMToolbox.format
         public byte[] ExtraHeaderSize { get { return this.extraHeaderSize; } }
         public byte[] DeviceFlag { get { return this.deviceFlag; } }
         public byte[] Data { get { return this.data; } }
-
+        */
         #region METHODS
 
         public byte[] getAsciiSignature(Stream pStream)

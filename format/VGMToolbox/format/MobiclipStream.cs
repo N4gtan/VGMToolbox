@@ -108,10 +108,10 @@ namespace VGMToolbox.format
                     while (currentOffset < fileSize)
                     {
 
-                        if (currentOffset == 0x4C7DC)
+                        /*if (currentOffset == 0x4C7DC)
                         {
                             int ccc = 1;
-                        }
+                        }*/
                         
                         blockSize = this.GetBlockSize(fs, currentOffset);
 

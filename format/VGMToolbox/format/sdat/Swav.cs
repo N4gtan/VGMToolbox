@@ -35,7 +35,7 @@ namespace VGMToolbox.format.sdat
             get { return filePath; }
             set { filePath = value; }
         }
-
+        /*
         // Tag Hash
         Dictionary<string, string> tagHash = new Dictionary<string, string>();
 
@@ -50,7 +50,7 @@ namespace VGMToolbox.format.sdat
         UInt32 swavHeaderSize;
         SwavInfo swavInfo;
         byte[] data;
-                
+        */
         // FILE INFO
         private const int STD_HEADER_SIGNATURE_OFFSET = 0x00;
         private const int STD_HEADER_SIGNATURE_LENGTH = 0x08;

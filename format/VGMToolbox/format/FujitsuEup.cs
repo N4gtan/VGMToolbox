@@ -24,7 +24,7 @@ namespace VGMToolbox.format
         public string ShortTrackName { get; set; }
         public string FmbFileName { get; set; }
         public string PmbFileName { get; set; }
-
+        /*
         private byte[] trackNameBytes;
         private byte[] shortTrackNameBytes;
         private byte[] fmbFileNameBytes;
@@ -35,7 +35,7 @@ namespace VGMToolbox.format
 
         private int dataOffset;
         private int dataLength;
-
+        */
         Dictionary<string, string> tagHash = new Dictionary<string, string>();
 
         public FujitsuEup() { }

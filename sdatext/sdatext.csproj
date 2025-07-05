@@ -30,7 +30,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -51,7 +51,7 @@
     <OutputPath>bin\x86\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>false</Prefer32Bit>
@@ -84,7 +84,6 @@
     <PostBuildEvent>if not exist ".\lib" mkdir lib
 move format.dll ".\lib\format.dll"
 move vgmtutil.dll ".\lib\vgmtutil.dll"
-move ICSharpCode.SharpZipLib.dll ".\lib\ICSharpCode.SharpZipLib.dll"
-del *.pdb</PostBuildEvent>
+move ICSharpCode.SharpZipLib.dll ".\lib\ICSharpCode.SharpZipLib.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>
