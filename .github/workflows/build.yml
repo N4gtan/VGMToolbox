@@ -1,0 +1,54 @@
+name: Build and Release
+on:   [ push, pull_request ]
+
+jobs:
+  build-windows:
+    name:    Build Windows binaries
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Build and package VGMToolbox
+      run: |
+        $revision = $([int](git rev-list --count --first-parent HEAD) + 1040)
+        $appCfgPath = "VGMToolbox/App.config"
+        $asmNfoPath = "VGMToolbox/Properties/AssemblyInfo.cs"
+        (Get-Content ${appCfgPath} -Raw) -replace 'INSERT_REVISION_HERE \(INSERT_DATE_HERE INSERT_TIME_HERE\)', "${revision} ($((Get-Date).ToString('yyyy/MM/dd')))" | Set-Content ${appCfgPath} -NoNewline
+        (Get-Content ${asmNfoPath} -Raw) -replace '1\.0\.0\.0', "1.0.0.${revision}" | Set-Content ${asmNfoPath} -NoNewline
+        msbuild VGMToolbox.sln /p:Configuration=Release /p:Platform="x86"
+        Compress-Archive -Path VGMToolbox/bin/x86/Release/* -DestinationPath VGMToolbox_r${revision}_x86.zip
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows
+        path: |
+          VGMToolbox_r*_x86.zip
+
+  # This job takes care of creating a new release and upload the build
+  # artifacts if the last commit is associated to a tag.
+  create-release:
+    name:    Create release
+    runs-on: ubuntu-latest
+    needs:   [ build-windows ]
+
+    steps:
+    - name: Fetch build artifacts
+      if:   ${{ github.ref_type == 'tag' }}
+      uses: actions/download-artifact@v4
+
+    - name: Publish release
+      if:   ${{ github.ref_type == 'tag' }}
+      uses: softprops/action-gh-release@v2
+      with:
+        fail_on_unmatched_files: true
+        #generate_release_notes:  true
+        files: |
+          windows/*

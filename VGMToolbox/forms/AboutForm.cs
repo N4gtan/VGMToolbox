@@ -14,7 +14,7 @@ namespace VGMToolbox.forms
         {
             InitializeComponent();
 
-            this.linkLabelHomePage.Links.Add(0, this.linkLabelHomePage.Text.Length, "http://sourceforge.net/projects/vgmtoolbox/");
+            this.linkLabelHomePage.Links.Add(0, this.linkLabelHomePage.Text.Length, "https://github.com/snakemeat/VGMToolbox");
             this.linkLabelSupport.Links.Add(0, this.linkLabelSupport.Text.Length, "http://hcs64.com/mboard/forum.php?showthread=22580");
         }
 
