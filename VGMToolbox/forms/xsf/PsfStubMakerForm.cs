@@ -133,7 +133,8 @@ namespace VGMToolbox.forms.xsf
                 ret = ret && AVgmtForm.checkTextBox(this.tbMyVb.Text, this.lblMyVb.Text);
                 ret = ret && AVgmtForm.checkTextBox(this.tbMyVbSize.Text, this.lblMyVbSize.Text);
             }
-            
+            ret = ret && AVgmtForm.checkTextBox(this.tbDriverText.Text, this.lblDriverText.Text);
+
             return ret;
         }
 

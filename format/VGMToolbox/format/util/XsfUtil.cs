@@ -212,7 +212,10 @@ namespace VGMToolbox.format.util
         private string ssSetTableSize;
         private string ssSetTickMode;
         private string ssSeqSetVol;
+        private string ssUtSetReverbDelay;
+        private string ssUtSetReverbDepth;
         private string ssUtSetReverbType;
+        private string ssUtSetReverbFeedback;
         private string ssUtReverbOn;
         private string ssVabOpenHead;
         private string ssVabOpenHeadSticky;
@@ -300,10 +303,25 @@ namespace VGMToolbox.format.util
             set { ssSeqSetVol = value; }
             get { return ssSeqSetVol; }
         }
+        public string SsUtSetReverbDelay
+        {
+            set { ssUtSetReverbDelay = value; }
+            get { return ssUtSetReverbDelay; }
+        }
+        public string SsUtSetReverbDepth
+        {
+            set { ssUtSetReverbDepth = value; }
+            get { return ssUtSetReverbDepth; }
+        }
         public string SsUtSetReverbType
         {
             set { ssUtSetReverbType = value; }
             get { return ssUtSetReverbType; }
+        }
+        public string SsUtSetReverbFeedback
+        {
+            set { ssUtSetReverbFeedback = value; }
+            get { return ssUtSetReverbFeedback; }
         }
         public string SsUtReverbOn
         {
@@ -1213,12 +1231,7 @@ namespace VGMToolbox.format.util
             return ret;        
         }
 
-        public static PsfPsyQAddresses GetSigFindItems(Stream sigFindOutputStream, bool relaxLoadAddressRestriction)
-        {
-            return GetSigFindItems(sigFindOutputStream, relaxLoadAddressRestriction, null);
-        }
-        
-        public static PsfPsyQAddresses GetSigFindItems(Stream sigFindOutputStream, bool relaxLoadAddressRestriction, PsfPsyQAddresses addressesToUpdate)
+        public static PsfPsyQAddresses GetSigFindItems(Stream sigFindOutputStream, bool relaxLoadAddressRestriction, PsfPsyQAddresses addressesToUpdate = null)
         {
             PsfPsyQAddresses ret;
 
@@ -1327,7 +1340,10 @@ namespace VGMToolbox.format.util
             psyQFunctionList.Add("SsSetTableSize");
             psyQFunctionList.Add("SsSetTickMode");
             psyQFunctionList.Add("SsSeqSetVol");
+            psyQFunctionList.Add("SsUtSetReverbDelay");
+            psyQFunctionList.Add("SsUtSetReverbDepth");
             psyQFunctionList.Add("SsUtSetReverbType");
+            psyQFunctionList.Add("SsUtSetReverbFeedback");
             psyQFunctionList.Add("SsUtReverbOn");
             psyQFunctionList.Add("SsVabOpenHead");
             psyQFunctionList.Add("SsVabTransBodyPartly");
@@ -1369,7 +1385,10 @@ namespace VGMToolbox.format.util
             list.Add("SsSetTableSize", "  #define SsSetTableSize(a,b,c)                  F3({0}) ((int)(a),(int)(b),(int)(c))");
             list.Add("SsSetTickMode", "  #define SsSetTickMode(a)                       F1({0}) ((int)(a))");
             list.Add("SsSeqSetVol", "  #define SsSeqSetVol(a,b,c)                     F3({0}) ((int)(a),(int)(b),(int)(c))");
+            list.Add("SsUtSetReverbDelay", "  #define SsUtSetReverbDelay(a)        ((short)( F1({0}) ((int)(a)) ))");
+            list.Add("SsUtSetReverbDepth", "  #define SsUtSetReverbDepth(a,b)                F2({0}) ((int)(a),(int)(b))");
             list.Add("SsUtSetReverbType", "  #define SsUtSetReverbType(a)         ((short)( F1({0}) ((int)(a)) ))");
+            list.Add("SsUtSetReverbFeedback", "  #define SsUtSetReverbFeedback(a)     ((short)( F1({0}) ((int)(a)) ))");
             list.Add("SsUtReverbOn", "  #define SsUtReverbOn                           F0({0})");
             list.Add("SsVabOpenHead", "  #define SsVabOpenHead(a,b)           ((short)( F2({0}) ((int)(a),(int)(b)) ))");
             list.Add("SsVabTransBodyPartly", "  #define SsVabTransBodyPartly(a,b,c)  ((short)( F3({0}) ((int)(a),(int)(b),(int)(c)) ))");
@@ -1412,27 +1431,30 @@ namespace VGMToolbox.format.util
             list.Add(200, "SsSetTableSize");
             list.Add(201, "SsSetTickMode");
             list.Add(202, "SsSeqSetVol");
-            list.Add(203, "SsUtSetReverbType");
-            list.Add(204, "SsUtReverbOn");
-            list.Add(205, "SsVabOpenHead");
-            list.Add(206, "SsVabTransBodyPartly");
-            list.Add(207, "SsVabTransCompleted");
+            list.Add(203, "SsUtSetReverbDelay");
+            list.Add(204, "SsUtSetReverbDepth");
+            list.Add(205, "SsUtSetReverbType");
+            list.Add(206, "SsUtSetReverbFeedback");
+            list.Add(207, "SsUtReverbOn");
+            list.Add(208, "SsVabOpenHead");
+            list.Add(209, "SsVabTransBodyPartly");
+            list.Add(210, "SsVabTransCompleted");
             
-            list.Add(209, "SpuSetReverb");
-            list.Add(210, "SpuSetReverbModeParam");
-            list.Add(211, "SpuSetReverbDepth");
-            list.Add(212, "SpuSetReverbVoice");
+            list.Add(212, "SpuSetReverb");
+            list.Add(213, "SpuSetReverbModeParam");
+            list.Add(214, "SpuSetReverbDepth");
+            list.Add(215, "SpuSetReverbVoice");
 
             // alternatives
-            list.Add(215, "SsVabOpenHeadSticky");
-            list.Add(216, "SsVabTransBody");
-            list.Add(217, "SpuIsTransferCompleted");
-            list.Add(218, "SpuInit");
-            list.Add(219, "SsStart2");
+            list.Add(218, "SsVabOpenHeadSticky");
+            list.Add(219, "SsVabTransBody");
+            list.Add(220, "SpuIsTransferCompleted");
+            list.Add(221, "SpuInit");
+            list.Add(222, "SsStart2");
 
             // SEP
-            list.Add(223, "SsSepOpen");
-            list.Add(224, "SsSepPlay");
+            list.Add(226, "SsSepOpen");
+            list.Add(227, "SsSepPlay");
 
             return list;
         }

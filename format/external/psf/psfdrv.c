@@ -200,7 +200,10 @@ unsigned long loopforever_data[] = {0x1000FFFF,0};
   #define SsSetTableSize(a,b,c)                  F3(0x800396B0) ((int)(a),(int)(b),(int)(c))
   #define SsSetTickMode(a)                       F1(0x80039490) ((int)(a))
   #define SsSeqSetVol(a,b,c)                     F3(0x80039A40) ((int)(a),(int)(b),(int)(c))
+  #define SsUtSetReverbDelay(a)        ((short)( F1(0x8003ACDC) ((int)(a)) ))
+  #define SsUtSetReverbDepth(a,b)                F2(0x8003AD1C) ((int)(a),(int)(b))
   #define SsUtSetReverbType(a)         ((short)( F1(0x8003ADAC) ((int)(a)) ))
+  #define SsUtSetReverbFeedback(a)     ((short)( F1(0x8003ADFC) ((int)(a)) ))
   #define SsUtReverbOn                           F0(0x8003AE5C)
   #define SsVabOpenHead(a,b)           ((short)( F2(0x8003A2B0) ((int)(a),(int)(b)) ))
   #define SsVabTransBodyPartly(a,b,c)  ((short)( F3(0x8003A7C4) ((int)(a),(int)(b),(int)(c)) ))
@@ -252,8 +255,8 @@ int psfdrv(void) {
   rtype  = PARAM_RTYPE;
   rdepth = PARAM_RDEPTH;  
   if(!seqvol) seqvol = 127;
-  if(!rtype)  rtype = 4;
-  if(!rdepth) rdepth = 0x2A;
+  if(!rtype)  rtype = 0;
+  if(!rdepth) rdepth = 0x50;
 
 #ifndef DO_SEQ  
   tickmode = PARAM_TICKMODE;
@@ -295,7 +298,6 @@ int psfdrv(void) {
   ** Reverb setup
   */
   
-
   { unsigned reverb_attr[5] = {7,0x100,0,0,0};
     reverb_attr[1] |= rtype;
     reverb_attr[2] = (rdepth << 8) | (rdepth << 24);
@@ -306,6 +308,8 @@ int psfdrv(void) {
     
 #ifdef SpuSetReverbDepth    
     SpuSetReverbDepth(reverb_attr);
+#elif defined SsUtSetReverbDepth
+    SsUtSetReverbDepth(rdepth, rdepth);
 #endif    
     
 #ifdef SpuSetReverbVoice    
@@ -317,15 +321,8 @@ int psfdrv(void) {
 #elif defined SsUtReverbOn
     SsUtReverbOn();
 #endif    
-  }    
+  }
 
-#ifdef SpuSetReverb   
-    SpuSetReverb(1);
-#elif defined SsUtReverbOn
-    SsUtReverbOn();
-#endif 
-
-  
   /*
   ** Start sound engine
   */
