@@ -398,7 +398,7 @@ namespace VGMToolbox.format
                             loopTickStack.Push(0);
                             loopsOpened++;
 
-                            ret.LoopStartInSeconds = ((totalTime) * Math.Pow(10, -6));
+                            ret.LoopStartInSeconds = Math.Round(totalTime * 1E-06, 6);
                         }
 
                         // check for loop end
@@ -423,11 +423,6 @@ namespace VGMToolbox.format
                                 loopTimeMultiplier = 2;
                                 loopFound = true;
                             }
-                            else if (loopTimeMultiplier == 127)
-                            {
-                                loopTimeMultiplier = 2;
-                                loopFound = true;
-                            }
                             else if (loopTimeMultiplier == 0)
                             {
                                 loopTimeMultiplier = 1;
@@ -439,11 +434,21 @@ namespace VGMToolbox.format
                                 loopTime = loopTimeStack.Pop();
                                 
                                 // set loop end
-                                ret.LoopEndInSeconds = ((totalTime + loopTime) * Math.Pow(10, -6));
+                                ret.LoopEndInSeconds = Math.Round((totalTime + loopTime) * 1E-06, 6);
                                 
                                 // multiply by loop multiplier.
-                                loopTime = (loopTime * loopTimeMultiplier);
-                                totalTime += loopTime;
+                                if (loopTimeMultiplier != 127)
+                                {
+                                    loopTime = (loopTime * loopTimeMultiplier);
+                                    totalTime += loopTime;
+                                }
+                                else // infinite, loop twice
+                                {
+                                    loopTime *= 2d;
+                                    totalTime += loopTime;
+                                    loopFound = true;
+                                    break;
+                                }
 
                                 loopTicks = loopTickStack.Pop();
                                 loopTicks = (loopTicks * (ulong)loopTimeMultiplier);
@@ -473,10 +478,20 @@ DONE:       // Marker used for skipping delta ticks at the end of a file.
             {
                 ret.Warnings += "Unmatched Loop Start tag(s) found." + Environment.NewLine;
 
+                if (!this.force2Loops &&
+                    ((loopTimeMultiplier <= 1) || (loopTimeMultiplier >= 127)))
+                {
+                    loopTimeMultiplier = 1;
+                }
+                else
+                {
+                    loopTimeMultiplier = 2;
+                    loopFound = true;
+                }
+
                 while (loopTimeStack.Count > 0)
                 {
-                    totalTime += loopTimeStack.Pop() * 2d;
-                    loopFound = true;
+                    totalTime += loopTimeStack.Pop() * loopTimeMultiplier;
                 }
             }
 
@@ -486,7 +501,7 @@ DONE:       // Marker used for skipping delta ticks at the end of a file.
                 totalTime -= timeSinceLastLoopEnd;
             }
 
-            ret.TimeInSeconds = ((totalTime) * Math.Pow(10, -6));
+            ret.TimeInSeconds = Math.Round(totalTime * 1E-06, 6);
 
             if (loopFound)
             {

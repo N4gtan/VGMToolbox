@@ -89,25 +89,25 @@ namespace VGMToolbox.tools.xsf
                     // loop entire track
                     if (psxSeqExtractStruct.loopEntireTrack)
                     {
-                        timingInfoSeconds = 2d * psxSeq.TimingInfo.TimeInSeconds;
+                        timingInfoSeconds = Math.Round(2d * psxSeq.TimingInfo.TimeInSeconds, 6);
                         timingInfoFadeInSeconds = 10;
                     }
                     
                     // Add line to batch file.
                     minutes = (int)(timingInfoSeconds / 60d);
-                    seconds = timingInfoSeconds - (minutes * 60);
+                    seconds = Math.Round(timingInfoSeconds - (minutes * 60), 6);
                     // seconds = Math.Ceiling(seconds);
 
                     if (loopStartInSeconds > -1)
                     {
                         loopStartMinutes = (int)(loopStartInSeconds / 60d);
-                        loopStartSeconds = loopStartInSeconds - (loopStartMinutes * 60);
+                        loopStartSeconds = Math.Round(loopStartInSeconds - (loopStartMinutes * 60), 6);
                     }
 
                     if (loopEndInSeconds > -1)
                     {
                         loopEndMinutes = (int)(loopEndInSeconds / 60d);
-                        loopEndSeconds = loopEndInSeconds - (loopEndMinutes * 60);
+                        loopEndSeconds = Math.Round(loopEndInSeconds - (loopEndMinutes * 60), 6);
                     }                    
 
                     // shouldn't be needed without Math.Ceiling call, but whatever 
@@ -117,14 +117,24 @@ namespace VGMToolbox.tools.xsf
                         seconds -= 60d;
                     }
 
-                    if ((loopStartInSeconds > -1) && (loopEndInSeconds > -1))
+                    if (loopStartInSeconds > -1)
                     {
-                        batchFile.AppendLine(
-                            String.Format(
-                                "REM {0}: Loop Start: {1}:{2} Loop Finish: {3}:{4}", 
-                                Path.GetFileName(pPath),
-                                loopStartMinutes.ToString(), loopStartSeconds.ToString().PadLeft(2, '0'),
-                                loopEndMinutes.ToString(), loopEndSeconds.ToString().PadLeft(2, '0')));
+                        batchFile.AppendFormat("REM {0}: Loop Start: {1}:{2}",
+                            Path.GetFileName(pPath),
+                            loopStartMinutes.ToString(), loopStartSeconds.ToString().PadLeft(2, '0'));
+
+                        if (loopEndInSeconds > -1)
+                        {
+                            batchFile.AppendFormat(" Loop Finish: {0}:{1}",
+                                loopEndMinutes.ToString(), loopEndSeconds.ToString().PadLeft(2, '0'));
+                        }
+
+                        batchFile.AppendLine();
+                    }
+                    else
+                    {
+                        batchFile.AppendFormat("REM {0}: No Loop Found\n",
+                            Path.GetFileName(pPath));
                     }
 
                     batchFile.AppendFormat("psfpoint.exe -length=\"{0}:{1}\" -fade=\"{2}\" \"{3}\"",
