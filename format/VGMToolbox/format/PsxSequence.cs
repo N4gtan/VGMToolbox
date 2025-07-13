@@ -152,12 +152,12 @@ namespace VGMToolbox.format
             bool running = false;
 
             bool loopFound = false;
-            bool loopEndFound = false;
+            bool loopCountFound = false;
             bool emptyTimeNext = false;
             double loopTime;
 
 
-            int loopTimeMultiplier = 1;
+            sbyte loopTimeMultiplier = 1;
             Stack<double> loopTimeStack = new Stack<double>();
             ulong loopTicks;
             Stack<ulong> loopTickStack = new Stack<ulong>();
@@ -399,25 +399,26 @@ namespace VGMToolbox.format
                             loopsOpened++;
 
                             ret.LoopStartInSeconds = Math.Round(totalTime * 1E-06, 6);
+                            continue;
+                        }
+
+                        // check for loop count
+                        if (!loopCountFound && (loopTimeStack.Count > 0) &&
+                            (((currentByte & 0xF0) == 0xB0) || ((runningCommand & 0xF0) == 0xB0)) &&
+                            dataByte1 == 0x06)
+                        {
+                            loopCountFound = true;
+                            loopTimeMultiplier = (sbyte)dataByte2;
+                            continue;
                         }
 
                         // check for loop end
                         if ((((currentByte & 0xF0) == 0xB0) || ((runningCommand & 0xF0) == 0xB0)) &&
                              dataByte1 == 0x63 && dataByte2 == 0x1E)
                         {
-                            loopEndFound = true;
+                            loopCountFound = false;
                             loopsClosed++;
-                        }
 
-                        if ((((currentByte & 0xF0) == 0xB0) || ((runningCommand & 0xF0) == 0xB0)) &&
-                            dataByte1 == 0x06)
-                        {
-                            loopTimeMultiplier = dataByte2;
-                        }
-
-                        // check for loop count
-                        if (loopEndFound)
-                        {
                             if (this.force2Loops)
                             {
                                 loopTimeMultiplier = 2;
@@ -437,9 +438,9 @@ namespace VGMToolbox.format
                                 ret.LoopEndInSeconds = Math.Round((totalTime + loopTime) * 1E-06, 6);
                                 
                                 // multiply by loop multiplier.
-                                if (loopTimeMultiplier != 127)
+                                if (loopTimeMultiplier < 127)
                                 {
-                                    loopTime = (loopTime * loopTimeMultiplier);
+                                    loopTime *= loopTimeMultiplier;
                                     totalTime += loopTime;
                                 }
                                 else // infinite, loop twice
@@ -451,7 +452,7 @@ namespace VGMToolbox.format
                                 }
 
                                 loopTicks = loopTickStack.Pop();
-                                loopTicks = (loopTicks * (ulong)loopTimeMultiplier);
+                                loopTicks *= (ulong)loopTimeMultiplier;
                                 totalTicks += loopTicks;
 
                                 timeSinceLastLoopEnd = 0;
@@ -459,7 +460,6 @@ namespace VGMToolbox.format
                                 
                             }
 
-                            loopEndFound = false;
                             // emptyTimeNext = true;
                         }
                     }
@@ -476,18 +476,18 @@ DONE:       // Marker used for skipping delta ticks at the end of a file.
             //   since it should be the outermost loop.            
             if (loopTimeStack.Count > 0)
             {
-                ret.Warnings += "Unmatched Loop Start tag(s) found." + Environment.NewLine;
-
-                if (!this.force2Loops &&
-                    ((loopTimeMultiplier <= 1) || (loopTimeMultiplier >= 127)))
-                {
-                    loopTimeMultiplier = 1;
-                }
-                else
+                loopFound = true;
+                if (this.force2Loops)
                 {
                     loopTimeMultiplier = 2;
-                    loopFound = true;
                 }
+                else if ((loopTimeMultiplier <= 1) || (loopTimeMultiplier == 127))
+                {
+                    loopTimeMultiplier = 1;
+                    loopFound = false;
+                }
+
+                ret.Warnings += "Unmatched Loop Start tag(s) found. Set to " + loopTimeMultiplier + " loop(s)." + Environment.NewLine;
 
                 while (loopTimeStack.Count > 0)
                 {
