@@ -644,11 +644,16 @@ namespace VGMToolbox.tools.xsf
             File.Copy(sourceExePath, destinationExeFile, true);
 
             // determine offsets
+            bool isPAL;
             using (FileStream fs = File.OpenRead(destinationExeFile))
             {
                 // get offset of text section
                 byte[] textSectionOffset = ParseFile.ParseSimpleOffset(fs, 0x18, 4);
                 textSectionOffsetValue = BitConverter.ToUInt32(textSectionOffset, 0);
+
+                // check if it is a PAL version
+                string asciiMarker = ParseFile.ReadAsciiString(fs, Psf.MINIPSF_ASCII_MARKER_OFFSET);
+                isPAL = asciiMarker.Contains("Europe");
 
                 // calculate pc offsets
                 pcOffsetSeq = VGMToolbox.util.ByteConversion.GetLongValueFromString(pBin2PsfStruct.seqOffset) -
@@ -711,7 +716,7 @@ namespace VGMToolbox.tools.xsf
                 (task == PsfMakerTask.SepPsf) ||
                 (task == PsfMakerTask.SepPsfWithVhVbLib))
             {
-                    byte[] tickModeBytes = BitConverter.GetBytes((uint)1);
+                    byte[] tickModeBytes = BitConverter.GetBytes(isPAL ? 4 : 1);
                     byte[] loopOffBytes = BitConverter.GetBytes((uint)1);
                     byte[] sepCountBytes = BitConverter.GetBytes((uint)sepCount);
                     byte[] sepTotalSeqsBytes = BitConverter.GetBytes((uint)sepTotalSeqs);
@@ -728,6 +733,13 @@ namespace VGMToolbox.tools.xsf
                         byte[] totalFileSizeBytes = BitConverter.GetBytes(totalFileSize);
                         
                         FileUtil.TrimFileToLength(destinationExeFile, (int)totalFileSize);
+                    }
+                    else if (task == PsfMakerTask.SepPsfWithVhVbLib)
+                    {
+                        long? totalFileSize = FileUtil.GetFileSize(destinationExeFile);
+                        byte[] textSectionSizeBytes = BitConverter.GetBytes((uint)(totalFileSize - pcOffsetSepParams));
+
+                        FileUtil.UpdateChunk(destinationExeFile, Psf.MINIPSF_TEXT_SECTION_SIZE_OFFSET, textSectionSizeBytes);
                     }
             }
                 
@@ -806,6 +818,13 @@ namespace VGMToolbox.tools.xsf
 
             // copy file
             File.Copy(templateMiniPsfPath, modifiedMiniPsfPath, true);
+
+            // replace asii marker
+            using (FileStream fs = File.OpenRead(pBin2PsfStruct.exePath))
+            {
+                string asciiMarker = ParseFile.ReadAsciiString(fs, Psf.MINIPSF_ASCII_MARKER_OFFSET);
+                FileUtil.UpdateTextField(modifiedMiniPsfPath, asciiMarker, Psf.MINIPSF_ASCII_MARKER_OFFSET, 0x38);
+            }
 
             // edit values            
             if (!useSepParameters)

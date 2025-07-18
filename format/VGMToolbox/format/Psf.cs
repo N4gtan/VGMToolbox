@@ -30,6 +30,7 @@ namespace VGMToolbox.format
         public const int MINIPSF_INITIAL_PC_OFFSET = 0x10;
         public const int MINIPSF_TEXT_SECTION_OFFSET = 0x18;
         public const int MINIPSF_TEXT_SECTION_SIZE_OFFSET = 0x1C;
+        public const int MINIPSF_ASCII_MARKER_OFFSET = 0x4C;
 
         public static readonly byte[] VB_START_BYTES = new byte[] { 0x00, 0x00, 0x00, 0x00,
                                                                     0x00, 0x00, 0x00, 0x00,
