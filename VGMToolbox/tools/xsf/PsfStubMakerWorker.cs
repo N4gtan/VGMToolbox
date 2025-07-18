@@ -290,26 +290,14 @@ namespace VGMToolbox.tools.xsf
             ret.ExeFileNameCrc = String.Format("  (int)\"{0}\", 0x{1},", Path.GetFileName(driverPath), checksum);
             ret.JumpPatchAddress = String.Format("0x{0}", BitConverter.ToUInt32(jumpAddress, 0).ToString("X8"));
 
-            // Hack to set reverb on some drivers where sigfind fails to detect it.
+            // >4.6 drivers uses SpuInitHot (3.7) as SsUtReverbOn and SpuInit (3.7) as SsUtReverbOff.
             if ((stubMakerParameters.IncludeReverb) &&
                 (String.IsNullOrEmpty(ret.SpuSetReverb)) &&
                 (String.IsNullOrEmpty(ret.SsUtReverbOn)) &&
-                (!String.IsNullOrEmpty(ret.SsUtSetReverbDelay)) &&
-                (!String.IsNullOrEmpty(ret.SsUtSetReverbDepth)) &&
-                (!String.IsNullOrEmpty(ret.SsUtSetReverbType)) &&
-                (!String.IsNullOrEmpty(ret.SsUtSetReverbFeedback)))
+                (!String.IsNullOrEmpty(ret.SpuInitHot)))
             {
-                long delay = VGMToolbox.util.ByteConversion.GetLongValueFromString(ret.SsUtSetReverbDelay);
-                long depth = VGMToolbox.util.ByteConversion.GetLongValueFromString(ret.SsUtSetReverbDepth);
-                long type = VGMToolbox.util.ByteConversion.GetLongValueFromString(ret.SsUtSetReverbType);
-                long feedback = VGMToolbox.util.ByteConversion.GetLongValueFromString(ret.SsUtSetReverbFeedback);
-                const int FeedbackSize = 0x40;
-                const int ReverbOffSize = 0x20;
-
-                if (feedback > delay && feedback > depth && feedback > type)
-                {
-                    ret.SsUtReverbOn = String.Format("0x{0}", (feedback + FeedbackSize + ReverbOffSize).ToString("X8"));
-                }
+                long address = VGMToolbox.util.ByteConversion.GetLongValueFromString(ret.SpuInitHot);
+                ret.SsUtReverbOn = String.Format("0x{0}", address.ToString("X8"));
             }
 
             return ret;

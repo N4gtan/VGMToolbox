@@ -224,6 +224,7 @@ namespace VGMToolbox.format.util
         private string ssVabTransCompleted;
 
         private string spuInit;
+        private string spuInitHot;
         private string spuIsTransferCompleted;
         
         private string spuSetReverb;
@@ -358,6 +359,11 @@ namespace VGMToolbox.format.util
         {
             set { spuInit = value; }
             get { return spuInit; }
+        }
+        public string SpuInitHot
+        {
+            set { spuInitHot = value; }
+            get { return spuInitHot; }
         }
         public string SpuIsTransferCompleted
         {
@@ -1282,10 +1288,15 @@ namespace VGMToolbox.format.util
 
                             if (psyQFunctions.Contains(firstChunk))
                             {
+                                if ((firstChunk == "SpuInitHot") && (splitInput[1] != "(3.7)"))
+                                {
+                                    continue;
+                                }
+
                                 addressValue = XsfUtil.getSigFindAddress(inputLine, false);
                                 psyQValue = ret.GetType().GetProperty(firstChunk);
 
-                                if ((addressesToUpdate == null) || (psyQValue.GetValue(ret, null) == null))
+                                if ((addressesToUpdate == null) || (psyQValue.GetValue(ret, null) == null) || (firstChunk == "SpuInitHot"))
                                 {
                                     psyQValue.SetValue(ret, addressValue, null);
                                 }
@@ -1358,6 +1369,7 @@ namespace VGMToolbox.format.util
             psyQFunctionList.Add("SsVabTransBody");
             psyQFunctionList.Add("SpuIsTransferCompleted");
             psyQFunctionList.Add("SpuInit");
+            psyQFunctionList.Add("SpuInitHot");
             psyQFunctionList.Add("SsStart2");
 
             // SEP
