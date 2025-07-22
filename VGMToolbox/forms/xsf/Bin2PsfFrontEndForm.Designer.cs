@@ -29,6 +29,9 @@
         private void InitializeComponent()
         {
             this.grpSource = new System.Windows.Forms.GroupBox();
+            this.cbVabMinipsf = new System.Windows.Forms.CheckBox();
+            this.lblVabLibName = new System.Windows.Forms.Label();
+            this.tbVablibName = new System.Windows.Forms.TextBox();
             this.cbMinipsf = new System.Windows.Forms.CheckBox();
             this.lblPsfLibName = new System.Windows.Forms.Label();
             this.tbPsflibName = new System.Windows.Forms.TextBox();
@@ -98,6 +101,9 @@
             // 
             // grpSource
             // 
+            this.grpSource.Controls.Add(this.cbVabMinipsf);
+            this.grpSource.Controls.Add(this.lblVabLibName);
+            this.grpSource.Controls.Add(this.tbVablibName);
             this.grpSource.Controls.Add(this.cbMinipsf);
             this.grpSource.Controls.Add(this.lblPsfLibName);
             this.grpSource.Controls.Add(this.tbPsflibName);
@@ -112,10 +118,38 @@
             this.grpSource.Dock = System.Windows.Forms.DockStyle.Top;
             this.grpSource.Location = new System.Drawing.Point(0, 70);
             this.grpSource.Name = "grpSource";
-            this.grpSource.Size = new System.Drawing.Size(638, 117);
+            this.grpSource.Size = new System.Drawing.Size(638, 143);
             this.grpSource.TabIndex = 5;
             this.grpSource.TabStop = false;
             this.grpSource.Text = "Source";
+            // 
+            // cbVabMinipsf
+            // 
+            this.cbVabMinipsf.AutoSize = true;
+            this.cbVabMinipsf.Location = new System.Drawing.Point(310, 118);
+            this.cbVabMinipsf.Name = "cbVabMinipsf";
+            this.cbVabMinipsf.Size = new System.Drawing.Size(101, 17);
+            this.cbVabMinipsf.TabIndex = 21;
+            this.cbVabMinipsf.Text = "Output VAB .minipsfs";
+            this.cbVabMinipsf.UseVisualStyleBackColor = true;
+            this.cbVabMinipsf.CheckedChanged += new System.EventHandler(this.cbVabMinipsf_CheckedChanged);
+            // 
+            // lblVabLibName
+            // 
+            this.lblVabLibName.AutoSize = true;
+            this.lblVabLibName.Location = new System.Drawing.Point(3, 119);
+            this.lblVabLibName.Name = "lblVabLibName";
+            this.lblVabLibName.Size = new System.Drawing.Size(73, 13);
+            this.lblVabLibName.TabIndex = 20;
+            this.lblVabLibName.Text = "VABLib Name";
+            // 
+            // tbVablibName
+            // 
+            this.tbVablibName.Location = new System.Drawing.Point(86, 116);
+            this.tbVablibName.Name = "tbVablibName";
+            this.tbVablibName.ReadOnly = true;
+            this.tbVablibName.Size = new System.Drawing.Size(218, 20);
+            this.tbVablibName.TabIndex = 19;
             // 
             // cbMinipsf
             // 
@@ -236,9 +270,9 @@
             this.grpOptions.Controls.Add(this.lblSeqOffset);
             this.grpOptions.Controls.Add(this.tbSeqOffset);
             this.grpOptions.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grpOptions.Location = new System.Drawing.Point(0, 187);
+            this.grpOptions.Location = new System.Drawing.Point(0, 213);
             this.grpOptions.Name = "grpOptions";
-            this.grpOptions.Size = new System.Drawing.Size(638, 200);
+            this.grpOptions.Size = new System.Drawing.Size(638, 174);
             this.grpOptions.TabIndex = 6;
             this.grpOptions.TabStop = false;
             this.grpOptions.Text = "Options";
@@ -455,6 +489,9 @@
         private System.Windows.Forms.CheckBox cbMinipsf;
         private System.Windows.Forms.Label lblPsfLibName;
         private System.Windows.Forms.TextBox tbPsflibName;
+        private System.Windows.Forms.CheckBox cbVabMinipsf;
+        private System.Windows.Forms.TextBox tbVablibName;
+        private System.Windows.Forms.Label lblVabLibName;
         private System.Windows.Forms.GroupBox grpGenericDrivers;
         private System.Windows.Forms.ComboBox genericDriver;
         private System.Windows.Forms.Label lblGenericDriver;

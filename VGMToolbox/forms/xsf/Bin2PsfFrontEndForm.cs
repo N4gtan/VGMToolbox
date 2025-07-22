@@ -33,6 +33,10 @@ namespace VGMToolbox.forms.xsf
                 ConfigurationManager.AppSettings["Form_Bin2PsfFE_LblPsfLibName"];
             this.cbMinipsf.Text =
                 ConfigurationManager.AppSettings["Form_Bin2PsfFE_CheckBoxMinipsf"];
+            this.lblVabLibName.Text =
+                ConfigurationManager.AppSettings["Form_Bin2PsfFE_LblVabLibName"];
+            this.cbVabMinipsf.Text =
+                ConfigurationManager.AppSettings["Form_Bin2PsfFE_CheckBoxVabMinipsf"];
             this.grpOptions.Text =
                 ConfigurationManager.AppSettings["Form_Bin2PsfFE_GroupOptions"];
             this.lblSeqOffset.Text =
@@ -56,6 +60,10 @@ namespace VGMToolbox.forms.xsf
             {
                 tbPsflibName.Text += Bin2PsfWorker.PSFLIB_FILE_EXTENSION;
             }
+            if ((cbVabMinipsf.Checked) && (!tbVablibName.Text.EndsWith(Bin2PsfWorker.PSFLIB_FILE_EXTENSION)))
+            {
+                tbVablibName.Text += Bin2PsfWorker.PSFLIB_FILE_EXTENSION;
+            }
 
             if (this.validateInputs())
             {
@@ -67,9 +75,11 @@ namespace VGMToolbox.forms.xsf
                 bpStruct.exePath = tbExePath.Text;
                 bpStruct.outputFolder = tbOutputFolderName.Text;
                 bpStruct.MakePsfLib = cbMinipsf.Checked;
+                bpStruct.MakeVabLib = cbVabMinipsf.Checked;
                 bpStruct.TryCombinations = this.cbTryMixing.Checked;
                 bpStruct.DriverName = (string)this.genericDriver.SelectedItem;
                 bpStruct.psflibName = tbPsflibName.Text;
+                bpStruct.vablibName = tbVablibName.Text;
                 bpStruct.SeqSize = this.tbMySeqSize.Text;
                 bpStruct.ParamOffset = this.tbParamOffset.Text;
 
@@ -98,26 +108,35 @@ namespace VGMToolbox.forms.xsf
         }
         private void doMiniPsfCheckChange()
         {
-            string selectedItem = (string)this.genericDriver.SelectedItem;
-
             if (cbMinipsf.Checked)
             {
                 this.tbPsflibName.ReadOnly = false;
                 this.tbPsflibName.Enabled = true;
-                this.cbTryMixing.Checked = false;
-                this.cbTryMixing.Enabled = false;                
             }
             else
             {
                 tbPsflibName.ReadOnly = true;
-                this.cbTryMixing.Enabled = true;
                 tbPsflibName.Clear();
             }
-
-            if (String.IsNullOrEmpty((string)this.genericDriver.SelectedItem))
+        }
+        private void cbVabMinipsf_CheckedChanged(object sender, EventArgs e)
+        {
+            this.doVabMiniPsfCheckChange();
+        }
+        private void doVabMiniPsfCheckChange()
+        {
+            if (cbVabMinipsf.Checked)
             {
-                this.tbMySeqSize.Enabled = true;
-                this.tbMySeqSize.ReadOnly = false;
+                this.tbVablibName.ReadOnly = false;
+                this.tbVablibName.Enabled = true;
+                this.cbTryMixing.Checked = false;
+                this.cbTryMixing.Enabled = false;
+            }
+            else
+            {
+                tbVablibName.ReadOnly = true;
+                this.cbTryMixing.Enabled = true;
+                tbVablibName.Clear();
             }
         }
 
@@ -189,13 +208,10 @@ namespace VGMToolbox.forms.xsf
             this.tbVhOffset.Text =  "0x80130000";
             this.tbVbOffset.Text =  "0x80140000";
             this.tbParamOffset.Text = "0x80101000";
-
-            this.cbMinipsf.Enabled = true;
         }
         private void loadMarkGrassGenericPresets()
         {            
             this.tbExePath.Text = Bin2PsfWorker.MGRASS_EXE_PATH;
-            this.tbPsflibName.Clear();
 
             this.tbSeqOffset.Text = "0x800A0000";
             this.tbMySeqSize.Text = "0x00040000";
@@ -210,7 +226,6 @@ namespace VGMToolbox.forms.xsf
         private void loadMarkGrass300GenericPresets()
         {
             this.tbExePath.Text = Bin2PsfWorker.MGRASS300_EXE_PATH;
-            this.tbPsflibName.Clear();
 
             this.tbSeqOffset.Text = "0x800A0000";
             this.tbMySeqSize.Text = "0x00040000";
@@ -226,7 +241,6 @@ namespace VGMToolbox.forms.xsf
         private void loadMarkGrass422GenericPresets()
         {
             this.tbExePath.Text = Bin2PsfWorker.MGRASS422_EXE_PATH;
-            this.tbPsflibName.Clear();
 
             this.tbSeqOffset.Text = "0x800A0000";
             this.tbMySeqSize.Text = "0x00040000";
@@ -242,7 +256,6 @@ namespace VGMToolbox.forms.xsf
         private void loadDavironicaGenericPresets()
         {
             this.tbExePath.Text = Bin2PsfWorker.EZPSF_EXE_PATH;
-            this.tbPsflibName.Clear();
 
             this.tbSeqOffset.Text = "0x80100000";
             this.tbMySeqSize.Text = "0x00020000";
@@ -260,8 +273,6 @@ namespace VGMToolbox.forms.xsf
             // this.tbExePath.Enabled = false;
             // this.tbExePath.ReadOnly = true;
             // this.btnExeBrowse.Enabled = false;
-            this.tbPsflibName.Enabled = false;
-            this.tbPsflibName.ReadOnly = true;
 
             this.tbParamOffset.Enabled = false;
             this.tbParamOffset.ReadOnly = true;
@@ -281,10 +292,6 @@ namespace VGMToolbox.forms.xsf
             this.tbExePath.ReadOnly = false;
             // this.tbExePath.Text = String.Empty;
             this.btnExeBrowse.Enabled = true;
-            this.tbPsflibName.Enabled = true;
-            this.tbPsflibName.ReadOnly = false;
-            this.cbMinipsf.Enabled = true;
-            this.cbMinipsf_CheckedChanged(null, null);
 
             this.tbParamOffset.Enabled = true;
             this.tbParamOffset.ReadOnly = false;
@@ -302,8 +309,6 @@ namespace VGMToolbox.forms.xsf
             this.tbVbOffset.Enabled = true;
             this.tbVbOffset.ReadOnly = false;
             this.tbVbOffset.Clear();
-
-            this.doMiniPsfCheckChange();
         }
 
         private bool validateInputs()
@@ -344,11 +349,11 @@ namespace VGMToolbox.forms.xsf
 
             if (psfForm != null)
             {
-                this.tbSeqOffset.Text = psfForm.GetSeqOffset();
-                this.tbVhOffset.Text = psfForm.GetVhOffset();
-                this.tbVbOffset.Text = psfForm.GetVbOffset();
-                this.tbMySeqSize.Text = psfForm.GetSeqSize();
-                this.tbParamOffset.Text = psfForm.GetParamOffset();
+                this.tbSeqOffset.Text = !string.IsNullOrWhiteSpace(psfForm.GetSeqOffset()) ? psfForm.GetSeqOffset() : "0x80120000";
+                this.tbVhOffset.Text = !string.IsNullOrWhiteSpace(psfForm.GetVhOffset()) ? psfForm.GetVhOffset() : "0x80130000";
+                this.tbVbOffset.Text = !string.IsNullOrWhiteSpace(psfForm.GetVbOffset()) ? psfForm.GetVbOffset() : "0x80140000";
+                this.tbMySeqSize.Text = !string.IsNullOrWhiteSpace(psfForm.GetSeqSize()) ? psfForm.GetSeqSize() : "0x00010000";
+                this.tbParamOffset.Text = !string.IsNullOrWhiteSpace(psfForm.GetParamOffset()) ? psfForm.GetParamOffset() : "0x80101000";
             }
         }
 

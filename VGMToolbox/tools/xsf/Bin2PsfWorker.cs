@@ -23,8 +23,9 @@ namespace VGMToolbox.tools.xsf
         SepMiniPsf,
         SepMiniPsfWithVhVbLib,
         SepPsfLib,
-        SepPsfLibWithVhVbLib,
-        SepPsfWithVhVbLib
+        //SepPsfLibWithVhVbLib,
+        SepPsfWithVhVbLib,
+        PsfLibDriver
     }
 
     public enum PsfDriverNames
@@ -81,6 +82,8 @@ namespace VGMToolbox.tools.xsf
             public string outputFolder;
             public bool MakePsfLib { set; get; }
             public string psflibName;
+            public bool MakeVabLib { set; get; }
+            public string vablibName;
 
             public bool TryCombinations;
             public string DriverName;
@@ -157,9 +160,14 @@ namespace VGMToolbox.tools.xsf
                             }
                         }
                     }
+
+                    if (pBin2PsfStruct.MakePsfLib)
+                    {
+                        this.maxFiles++;
+                    }
                     
                     // check psflib counts
-                    if (pBin2PsfStruct.MakePsfLib)
+                    if (pBin2PsfStruct.MakeVabLib)
                     {
                         this.maxFiles++;
                         
@@ -257,8 +265,30 @@ namespace VGMToolbox.tools.xsf
                 return;
             }
 
-            // modify minipsf .exe for VH/VB lib and make .psflib
+            // make driver .psflib and point to minipsf.exe from now on
             if (pBin2PsfStruct.MakePsfLib)
+            {
+                this.makePsfFile(
+                    PsfMakerTask.PsfLibDriver,
+                    pBin2PsfStruct,
+                    pBin2PsfStruct.exePath,
+                    null,
+                    null,
+                    null,
+                    bin2PsfDestinationPath,
+                    ripOutputFolder,
+                    null,
+                    //null,
+                    Path.GetFileNameWithoutExtension(pBin2PsfStruct.psflibName),
+                    -1,
+                    -1);
+
+                originalExe = pBin2PsfStruct.exePath;
+                pBin2PsfStruct.exePath = setMiniPsfValues(GENERIC_MINIPSF_EXE_PATH, pBin2PsfStruct, null);
+            }
+
+            // modify minipsf .exe for VH/VB lib and make .psflib
+            if (pBin2PsfStruct.MakeVabLib)
             {
                 // vhVbMiniPsfLibExePath = setMiniPsfValues(GENERIC_MINIPSF_EXE_PATH, pBin2PsfStruct, false);
 
@@ -271,9 +301,9 @@ namespace VGMToolbox.tools.xsf
                     Path.ChangeExtension(pVhFiles[0], ".vb"),
                     bin2PsfDestinationPath,
                     ripOutputFolder,
-                    null,
-                    null,
-                    Path.GetFileNameWithoutExtension(pBin2PsfStruct.psflibName),
+                    pBin2PsfStruct.psflibName,
+                    //null,
+                    Path.GetFileNameWithoutExtension(pBin2PsfStruct.vablibName),
                     -1,
                     -1);
             }
@@ -284,8 +314,19 @@ namespace VGMToolbox.tools.xsf
             {                                
                 if (!CancellationPending)
                 {
-                    originalExe = pBin2PsfStruct.exePath;
                     sequenceType = this.getPsxSequenceType(sequenceFile);
+
+                    if (pBin2PsfStruct.MakePsfLib)
+                    {
+                        if (sequenceType == PsxSequenceType.SeqType)
+                        {
+                            setMiniPsfValues(GENERIC_MINIPSF_EXE_PATH, pBin2PsfStruct, false);
+                        }
+                        else // sequenceType == PsxSequenceType.SepType
+                        {
+                            setMiniPsfValues(GENERIC_MINIPSF_EXE_PATH, pBin2PsfStruct, true);
+                        }
+                    }
 
                     // get sequence count
                     if (pBin2PsfStruct.ForceSepTrackNo && PsxSequence.IsSepTypeSequence(sequenceFile))
@@ -349,8 +390,8 @@ namespace VGMToolbox.tools.xsf
                                         Path.ChangeExtension(vhFile, ".vb"),
                                         bin2PsfDestinationPath,
                                         ripOutputFolder,
-                                        null,
-                                        null,
+                                        pBin2PsfStruct.psflibName,
+                                        //null,
                                         filePrefix,
                                         trackId,
                                         (int)totalSequences);
@@ -376,8 +417,8 @@ namespace VGMToolbox.tools.xsf
                                             Path.ChangeExtension(vhFile, ".vb"),
                                             bin2PsfDestinationPath,
                                             ripOutputFolder,
-                                            null,
-                                            null,
+                                            pBin2PsfStruct.psflibName,
+                                            //null,
                                             filePrefix,
                                             i,
                                             (int)totalSequences);
@@ -421,7 +462,7 @@ namespace VGMToolbox.tools.xsf
                                 }
                             }
                             
-                            if (pBin2PsfStruct.MakePsfLib)
+                            if (pBin2PsfStruct.MakeVabLib)
                             {
                                 vhName = null;
                                 vbName = null;                                
@@ -429,12 +470,12 @@ namespace VGMToolbox.tools.xsf
                                 if (sequenceType == PsxSequenceType.SeqType)
                                 {
                                     task = PsfMakerTask.SeqMiniPsf;
-                                    vhVbMiniPsfLibExePath = setMiniPsfValues(GENERIC_MINIPSF_EXE_PATH, pBin2PsfStruct, false);
+                                    vhVbMiniPsfLibExePath = !pBin2PsfStruct.MakeVabLib ? setMiniPsfValues(GENERIC_MINIPSF_EXE_PATH, pBin2PsfStruct, false) : pBin2PsfStruct.exePath;
                                 }
                                 else // sequenceType == PsxSequenceType.SepType
                                 {
                                     task = PsfMakerTask.SepPsfWithVhVbLib;
-                                    vhVbMiniPsfLibExePath = setMiniPsfValues(GENERIC_MINIPSF_EXE_PATH, pBin2PsfStruct, true);
+                                    vhVbMiniPsfLibExePath = !pBin2PsfStruct.MakeVabLib ? setMiniPsfValues(GENERIC_MINIPSF_EXE_PATH, pBin2PsfStruct, true) : pBin2PsfStruct.exePath;
                                 }
 
                                 exePath = vhVbMiniPsfLibExePath;
@@ -444,15 +485,6 @@ namespace VGMToolbox.tools.xsf
                                 vhName = Path.ChangeExtension(sequenceFile, ".vh");
                                 vbName = Path.ChangeExtension(sequenceFile, ".vb");
                                 exePath = pBin2PsfStruct.exePath;
-
-                                if (sequenceType == PsxSequenceType.SeqType)
-                                {
-                                    task = PsfMakerTask.SeqPsf;
-                                }
-                                else // sequenceType == PsxSequenceType.SepType
-                                {
-                                    task = PsfMakerTask.SepPsf;
-                                }
                             }
 
                             try
@@ -466,8 +498,8 @@ namespace VGMToolbox.tools.xsf
                                     vbName,
                                     bin2PsfDestinationPath,
                                     ripOutputFolder,
-                                    pBin2PsfStruct.psflibName,
-                                    null,
+                                    pBin2PsfStruct.MakeVabLib ? pBin2PsfStruct.vablibName : pBin2PsfStruct.psflibName,
+                                    //null,
                                     filePrefix,
                                     trackId,
                                     (int)totalSequences);
@@ -484,14 +516,13 @@ namespace VGMToolbox.tools.xsf
                         {
                             // make SEP psflib
                             psfLibName = Path.GetFileName(Path.ChangeExtension(sequenceFile, PSFLIB_FILE_EXTENSION));                            
+                            sepPsfLibExePath = setMiniPsfValues(GENERIC_MINIPSF_EXE_PATH, pBin2PsfStruct, false);
 
-                            if (pBin2PsfStruct.MakePsfLib)
+                            if (pBin2PsfStruct.MakeVabLib)
                             {
                                 vhName = null;
                                 vbName = null;
                                 task = PsfMakerTask.SepMiniPsfWithVhVbLib;
-                                // sepPsfLibExePath = setMiniPsfValues(GENERIC_MINIPSF_EXE_PATH, pBin2PsfStruct, true);
-                                sepPsfLibExePath = setMiniPsfValues(GENERIC_MINIPSF_EXE_PATH, pBin2PsfStruct, false);
                             }
                             else
                             {
@@ -510,8 +541,8 @@ namespace VGMToolbox.tools.xsf
                                 vbName,
                                 bin2PsfDestinationPath,
                                 ripOutputFolder,
-                                null,
-                                null,
+                                pBin2PsfStruct.MakeVabLib ? pBin2PsfStruct.vablibName : pBin2PsfStruct.psflibName,
+                                //null,
                                 Path.GetFileNameWithoutExtension(psfLibName),
                                 -1,
                                 -1);
@@ -538,8 +569,8 @@ namespace VGMToolbox.tools.xsf
                                         null,
                                         bin2PsfDestinationPath,
                                         ripOutputFolder,
-                                        pBin2PsfStruct.psflibName,
                                         psfLibName,
+                                        //null,
                                         filePrefix,
                                         i,
                                         (int)totalSequences);
@@ -585,8 +616,9 @@ namespace VGMToolbox.tools.xsf
             string vbFile,
             string bin2PsfDestinationPath,
             string ripOutputFolder,
-            string vhVhPsfLibFileName,
-            string sepPsfLibFileName,
+            string psfLibFileName,
+            //string vhVhPsfLibFileName,
+            //string sepPsfLibFileName,
             string filePrefix,
             int sepCount,
             int sepTotalSeqs)
@@ -597,6 +629,7 @@ namespace VGMToolbox.tools.xsf
             long pcOffsetVb;
             long pcOffsetSepParams = 0;
             long textSectionOffsetValue;
+            uint textSectionSizeValue;
 
             bool isSeqPresent = !String.IsNullOrEmpty(seqFile);
             bool isVbPresent = !String.IsNullOrEmpty(vbFile);
@@ -631,6 +664,7 @@ namespace VGMToolbox.tools.xsf
                     break;
                 case PsfMakerTask.SepPsfLib:
                 case PsfMakerTask.SeqPsfLib:
+                case PsfMakerTask.PsfLibDriver:
                     builtFilePath = String.Format("{0}.{1}", filePrefix, "psflib");
                     break;
                 default:
@@ -725,24 +759,13 @@ namespace VGMToolbox.tools.xsf
                     FileUtil.UpdateChunk(destinationExeFile, (int)(pcOffsetSepParams + PARAM_MAXSEQ_LOOPOFF), loopOffBytes);
                     FileUtil.UpdateChunk(destinationExeFile, (int)(pcOffsetSepParams + PARAM_SEQNUM_OFFSET), sepCountBytes);
                     FileUtil.UpdateChunk(destinationExeFile, (int)(pcOffsetSepParams + PARAM_MAXSEQ_OFFSET), sepTotalSeqsBytes);
-
-                    if ((task == PsfMakerTask.SepMiniPsf) ||
-                        (task == PsfMakerTask.SepMiniPsfWithVhVbLib))
-                    {
-                        uint totalFileSize = (uint)(pcOffsetSepParams + PARAM_MAXSEQ_OFFSET + 4);
-                        byte[] totalFileSizeBytes = BitConverter.GetBytes(totalFileSize);
-                        
-                        FileUtil.TrimFileToLength(destinationExeFile, (int)totalFileSize);
-                    }
-                    else if (task == PsfMakerTask.SepPsfWithVhVbLib)
-                    {
-                        long? totalFileSize = FileUtil.GetFileSize(destinationExeFile);
-                        byte[] textSectionSizeBytes = BitConverter.GetBytes((uint)(totalFileSize - pcOffsetSepParams));
-
-                        FileUtil.UpdateChunk(destinationExeFile, Psf.MINIPSF_TEXT_SECTION_SIZE_OFFSET, textSectionSizeBytes);
-                    }
             }
-                
+
+            // update Text Section Size
+            textSectionSizeValue = (uint)FileUtil.GetFileSize(destinationExeFile) - Psf.PC_OFFSET_CORRECTION;
+            byte[] textSectionSizeBytes = BitConverter.GetBytes(textSectionSizeValue);
+            FileUtil.UpdateChunk(destinationExeFile, (int)Psf.TEXT_SIZE_OFFSET, textSectionSizeBytes);
+
             // build bin2psf arguments                    
             StringBuilder bin2PsfArguments = new StringBuilder();
             bin2PsfArguments.Append(String.Format(" {0} 1 {1}.bin", Path.GetExtension(builtFilePath).Substring(1), filePrefix));
@@ -759,10 +782,7 @@ namespace VGMToolbox.tools.xsf
             if (isSuccess)
             {
                 // add lib tag(s)
-                if ((task == PsfMakerTask.SepMiniPsf) || 
-                    (task == PsfMakerTask.SeqMiniPsf) ||
-                    (task == PsfMakerTask.SepPsfWithVhVbLib) ||
-                    (task == PsfMakerTask.SepMiniPsfWithVhVbLib))
+                if (!String.IsNullOrEmpty(psfLibFileName))
                 {
                     using (FileStream ofs = File.Open(builtFilePath, FileMode.Open, FileAccess.Write))
                     {
@@ -771,7 +791,9 @@ namespace VGMToolbox.tools.xsf
                         {
                             System.Text.Encoding enc = System.Text.Encoding.ASCII;
                             bw.Write(enc.GetBytes(Xsf.ASCII_TAG)); // [TAG]
-
+                            bw.Write(enc.GetBytes(String.Format("_lib={0}", psfLibFileName)));
+                            bw.Write(new byte[] { 0x0A });
+                            /*
                             if (!String.IsNullOrEmpty(vhVhPsfLibFileName))
                             {
                                 bw.Write(enc.GetBytes(String.Format("_lib={0}", vhVhPsfLibFileName)));
@@ -790,7 +812,7 @@ namespace VGMToolbox.tools.xsf
                                     bw.Write(enc.GetBytes(String.Format("_lib={0}", sepPsfLibFileName)));
                                     bw.Write(new byte[] { 0x0A });                                
                                 }
-                            }
+                            }*/
                         }
                     }
                 }
@@ -810,49 +832,42 @@ namespace VGMToolbox.tools.xsf
             }
         }
 
-        private string setMiniPsfValues(string templateMiniPsfPath, Bin2PsfStruct pBin2PsfStruct, bool useSepParameters)
+        private string setMiniPsfValues(string templateMiniPsfPath, Bin2PsfStruct pBin2PsfStruct, bool? useSepParameters)
         {
+            byte[] offsetBytes;
             string modifiedMiniPsfPath = Path.Combine(WORKING_FOLDER, Path.GetFileName(templateMiniPsfPath));
-            long seqSize = VGMToolbox.util.ByteConversion.GetLongValueFromString(pBin2PsfStruct.SeqSize);
-            int totalFileSize;
 
             // copy file
-            File.Copy(templateMiniPsfPath, modifiedMiniPsfPath, true);
-
-            // replace asii marker
-            using (FileStream fs = File.OpenRead(pBin2PsfStruct.exePath))
+            if (!File.Exists(modifiedMiniPsfPath))
             {
-                string asciiMarker = ParseFile.ReadAsciiString(fs, Psf.MINIPSF_ASCII_MARKER_OFFSET);
+                File.Copy(templateMiniPsfPath, modifiedMiniPsfPath);
+                //FileUtil.TrimFileToLength(modifiedMiniPsfPath, Psf.PC_OFFSET_CORRECTION + PARAM_MAXSEQ_OFFSET - 8);
+
+                // replace ascii marker
+                string asciiMarker;
+                using (FileStream fs = File.OpenRead(pBin2PsfStruct.exePath))
+                {
+                    asciiMarker = ParseFile.ReadAsciiString(fs, Psf.MINIPSF_ASCII_MARKER_OFFSET);
+                }
                 FileUtil.UpdateTextField(modifiedMiniPsfPath, asciiMarker, Psf.MINIPSF_ASCII_MARKER_OFFSET, 0x38);
             }
 
             // edit values            
-            if (!useSepParameters)
+            if (useSepParameters == true)
             {
-                byte[] seqOffsetBytes = BitConverter.GetBytes((uint)VGMToolbox.util.ByteConversion.GetLongValueFromString(pBin2PsfStruct.seqOffset));
-                byte[] seqSizeBytes = BitConverter.GetBytes((uint)seqSize);
-
-                FileUtil.UpdateChunk(modifiedMiniPsfPath, Psf.MINIPSF_INITIAL_PC_OFFSET, seqOffsetBytes);
-                FileUtil.UpdateChunk(modifiedMiniPsfPath, Psf.MINIPSF_TEXT_SECTION_OFFSET, seqOffsetBytes);
-                FileUtil.UpdateChunk(modifiedMiniPsfPath, Psf.MINIPSF_TEXT_SECTION_SIZE_OFFSET, seqSizeBytes);
-
-                // trim end of file
-                totalFileSize = (int)(seqSize + Psf.PC_OFFSET_CORRECTION);
+                offsetBytes = BitConverter.GetBytes((uint)ByteConversion.GetLongValueFromString(pBin2PsfStruct.ParamOffset) + PARAM_SEQNUM_TICKMODE);
+            }
+            else if (useSepParameters == false)
+            {
+                offsetBytes = BitConverter.GetBytes((uint)ByteConversion.GetLongValueFromString(pBin2PsfStruct.seqOffset));
             }
             else
             {
-                uint paramOffet = (uint)VGMToolbox.util.ByteConversion.GetLongValueFromString(pBin2PsfStruct.ParamOffset);
-                byte[] paramOffsetBytes = BitConverter.GetBytes(paramOffet);
-
-                totalFileSize = (int)(Psf.PC_OFFSET_CORRECTION + PARAM_MAXSEQ_OFFSET + 4);
-                byte[] textSectionSizeBytes = BitConverter.GetBytes((uint)(totalFileSize - Psf.PC_OFFSET_CORRECTION));
-
-                FileUtil.UpdateChunk(modifiedMiniPsfPath, Psf.MINIPSF_INITIAL_PC_OFFSET, paramOffsetBytes);
-                FileUtil.UpdateChunk(modifiedMiniPsfPath, Psf.MINIPSF_TEXT_SECTION_OFFSET, paramOffsetBytes);
-                FileUtil.UpdateChunk(modifiedMiniPsfPath, Psf.MINIPSF_TEXT_SECTION_SIZE_OFFSET, textSectionSizeBytes);
+                offsetBytes = BitConverter.GetBytes((uint)ByteConversion.GetLongValueFromString(pBin2PsfStruct.vhOffset));
             }
-            
-            FileUtil.TrimFileToLength(modifiedMiniPsfPath, totalFileSize);
+
+            //FileUtil.UpdateChunk(modifiedMiniPsfPath, Psf.MINIPSF_INITIAL_PC_OFFSET, offsetBytes);
+            FileUtil.UpdateChunk(modifiedMiniPsfPath, Psf.MINIPSF_TEXT_SECTION_OFFSET, offsetBytes);
 
             return modifiedMiniPsfPath;
         }
