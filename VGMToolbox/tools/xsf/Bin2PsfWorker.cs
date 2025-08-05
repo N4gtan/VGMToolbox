@@ -470,12 +470,12 @@ namespace VGMToolbox.tools.xsf
                                 if (sequenceType == PsxSequenceType.SeqType)
                                 {
                                     task = PsfMakerTask.SeqMiniPsf;
-                                    vhVbMiniPsfLibExePath = !pBin2PsfStruct.MakeVabLib ? setMiniPsfValues(GENERIC_MINIPSF_EXE_PATH, pBin2PsfStruct, false) : pBin2PsfStruct.exePath;
+                                    vhVbMiniPsfLibExePath = !pBin2PsfStruct.MakePsfLib ? setMiniPsfValues(GENERIC_MINIPSF_EXE_PATH, pBin2PsfStruct, false) : pBin2PsfStruct.exePath;
                                 }
                                 else // sequenceType == PsxSequenceType.SepType
                                 {
                                     task = PsfMakerTask.SepPsfWithVhVbLib;
-                                    vhVbMiniPsfLibExePath = !pBin2PsfStruct.MakeVabLib ? setMiniPsfValues(GENERIC_MINIPSF_EXE_PATH, pBin2PsfStruct, true) : pBin2PsfStruct.exePath;
+                                    vhVbMiniPsfLibExePath = !pBin2PsfStruct.MakePsfLib ? setMiniPsfValues(GENERIC_MINIPSF_EXE_PATH, pBin2PsfStruct, true) : pBin2PsfStruct.exePath;
                                 }
 
                                 exePath = vhVbMiniPsfLibExePath;
@@ -768,7 +768,7 @@ namespace VGMToolbox.tools.xsf
 
             // build bin2psf arguments                    
             StringBuilder bin2PsfArguments = new StringBuilder();
-            bin2PsfArguments.Append(String.Format(" {0} 1 {1}.bin", Path.GetExtension(builtFilePath).Substring(1), filePrefix));
+            bin2PsfArguments.Append(String.Format(" {0} 1 \"{1}.bin\"", Path.GetExtension(builtFilePath).Substring(1), filePrefix));
 
             // run bin2psf                
             Process bin2PsfProcess = new Process();
